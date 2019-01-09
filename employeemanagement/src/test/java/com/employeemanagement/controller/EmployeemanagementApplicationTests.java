@@ -19,14 +19,14 @@ import com.employeemanagement.models.Employee;
 import org.mockito.Mockito;
 
 
-@RunWith(SpringRunner.class)
+//@RunWith(SpringRunner.class)
 //@WebMvcTest(value = EmployeeController.class, secure = false)
-@SpringBootTest(classes = EmployeeManagementApplication.class)
+//@SpringBootTest(classes = EmployeeManagementApplication.class)
 public class EmployeemanagementApplicationTests {
 	
-	private MockMvc mockMvc;
+	//private MockMvc mockMvc;
 
-	@Test
+	//@Test
 	public void getResource() throws Exception {
 		
 			//TODO
