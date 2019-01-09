@@ -2,6 +2,7 @@ package com.employeemanagement.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -20,12 +21,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.employeemanagement.app.EmployeeManagementApplication;
 import com.employeemanagement.models.Employee;
 import com.employeemanagement.persistency.JsonCache;
+import com.employeemanagement.repositories.EmployeeRepository;
 
 /***
  * Controller supports the following CRUD APIs
@@ -36,6 +40,12 @@ import com.employeemanagement.persistency.JsonCache;
  * + update employee entity
  * + delete employee entity by id
  * + delete all employees
+ * 
+ * The Controller supports two version of APIs
+ * 
+ * + v1: using local cache
+ * + v2: using persistent data store (MySQL)
+ * 
  *
  */
 
@@ -43,11 +53,17 @@ import com.employeemanagement.persistency.JsonCache;
 @RequestMapping("/management")
 public class EmployeeController {
 	
+	@Autowired
+	private EmployeeRepository employeeRepository;
+	
+	// Note -  did not add any additional logging
 	private static final Logger logger = LogManager
 			.getLogger(EmployeeManagementApplication.class);
 	
+	// "id" is only relevant for API v1
 	private static long id;  // resourceId, normally is auto-generated when Entity class
 	                         // in folder model is correctly hooked up
+							 // for demo point of view, dirty hack
 
 	
 	// get employee with id <id>
@@ -69,20 +85,23 @@ public class EmployeeController {
 	// Note:
 	// Example how to support versioning
 	//   the API below could contain a different logic
-	// get employee with id <id>
+	//  get employee with id <id>
 	@GetMapping("v2/employee/{id}")
-	public String getEmployeeV2(@PathVariable long id){
+	public ResponseEntity<Employee> getEmployeeV2(@PathVariable long id){
 		
-		JsonCache cache = JsonCache.getInstance();
-		JSONObject obj;
-		try {
-			obj = cache.getResource(id);
-		} catch (Exception e) {
-			 throw new ResponseStatusException(
-			          HttpStatus.BAD_REQUEST, "resource not found", e);
+		Optional<Employee> employee = employeeRepository.findById(id);
+		
+		Employee employeeResult = null;
+		if(employee.isPresent()) {
+			employeeResult = employee.get();
+			
+		}else {
+			throw new ResponseStatusException(
+			          HttpStatus.BAD_REQUEST, "resource id not found");
 		}
 		
-		return obj.toString();
+		return (ResponseEntity<Employee>) ResponseEntity.ok().body(employeeResult);
+
 	}
 	
 	//get all employees
@@ -94,19 +113,26 @@ public class EmployeeController {
 		
 		return all.toString();
 	}	
+	
+	//get all employees
+	@GetMapping("v2/employees")
+	public List<Employee> getEmployees2(){
+		
+		return employeeRepository.findAll();
+
+	}	
 
 	// create new resource
 	@PostMapping("v1/employee")
 	@ResponseStatus(HttpStatus.CREATED)
-	public Employee employee(
+	public Employee createEmployee(
 			@Valid @RequestBody Employee e) throws Exception{
-		
-		id++;
+
+		id++; 		// for quick and dirty I am setting the id here
+					// for better abstraction id generation should happen in the persistency layer
 
 		Employee employee = new Employee();
 		
-		// for quick and dirty I am setting the id here
-		// for better abstraction id generation should happen in the persistency layer
 		employee.setId(id);
 		employee.setFirstName(e.getFirstName());
 		employee.setLastName(e.getLastName());
@@ -125,6 +151,16 @@ public class EmployeeController {
 		}
 		
 		return employee;
+	}
+	
+	// create new resource
+	@PostMapping("v2/employee")
+	@ResponseStatus(HttpStatus.CREATED)
+	public Employee createEmployee2(
+			@Valid @RequestBody Employee e) throws Exception{
+		
+		return employeeRepository.save(e);
+		
 	}
 	
 	
@@ -150,6 +186,31 @@ public class EmployeeController {
 		return object.toString();
 	}
 	
+	@PutMapping("v2/employee/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	public Employee updateEmployee2(
+			@PathVariable long id,
+			@Valid @RequestBody Employee e) {
+		
+		Optional<Employee> employee = employeeRepository.findById(id);
+		
+		Employee employeeResult = null;
+		if(employee.isPresent()) {
+			employeeResult = employee.get();
+			employeeResult.setDepartment(e.getDepartment());
+			employeeResult.setEmail(e.getEmail());
+			employeeResult.setFirstName(e.getFirstName());
+			employeeResult.setLastName(e.getLastName());
+			
+		}else {
+			throw new ResponseStatusException(
+			          HttpStatus.BAD_REQUEST, "resource id not found");
+		}
+		
+		
+		return employeeRepository.save(employeeResult);
+	}
+	
 	// delete resource with id <id>
 	@DeleteMapping("v1/employee/{id}")
 	@ResponseStatus(HttpStatus.OK)
@@ -165,6 +226,22 @@ public class EmployeeController {
 		return "{\"response\":\"entry " +id +" deleted\"}";
 	}
 	
+	@DeleteMapping("v2/employee/{id}")
+	@ResponseStatus(HttpStatus.OK)
+	public ResponseEntity<Employee> delete2(@PathVariable("id") Long id) {
+
+		Optional<Employee> employee = employeeRepository.findById(id);
+		
+		Employee employeeResult = null;
+		if(employee.isPresent()) {
+			employeeResult = employee.get();
+			employeeRepository.delete(employeeResult);
+			
+		}
+		
+		return ResponseEntity.ok(employeeResult);
+	}
+	
 	// delete all entries
 	@DeleteMapping("v1/employees")
 	public String deleteAll() {
@@ -175,7 +252,17 @@ public class EmployeeController {
 		return "{\"response\":\"all entries deleted\"}";
 	}
 	
+	// delete all entries
+	@DeleteMapping("v2/employees")
+	public ResponseEntity<?> deleteAll2() {
+		
+		employeeRepository.deleteAll();
+		
+		return new ResponseEntity<>("{\"response\":\"deleted all\"}", HttpStatus.OK);
+		
+	}
 	
+	// Note - helper code should be in Utils package
 	// Helper
 	public JSONObject convertToJson(Employee e) throws Exception {
 		JSONObject obj = new JSONObject();

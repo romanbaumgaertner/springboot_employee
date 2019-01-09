@@ -4,6 +4,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/*
+ * This class in only used for local REST API v1 using local cache
+ */
 public class JsonCache {
 	
 	public static String ID = "id";

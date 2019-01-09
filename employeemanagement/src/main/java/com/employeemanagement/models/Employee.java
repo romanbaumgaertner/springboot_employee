@@ -1,15 +1,18 @@
 package com.employeemanagement.models;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 // Entity class is not hooked up to a database 
 // id does not get auto-generated
 
 @Entity
+@Table(name= "Employee")
 public class Employee {
 	
 	@Id
@@ -17,10 +20,17 @@ public class Employee {
 	private long id;
 
 	@NotNull
+	@Column(name = "firstname")
 	private String firstName;
+	
 	@NotNull
+	@Column(name = "lastname")
 	private String lastName;
+	
+	@Column(name = "email")
 	private String email;
+	
+	@Column(name = "department")
 	private String department;
 	
 	public String getFirstName() {
@@ -61,6 +71,12 @@ public class Employee {
 
 	public void setId(long id) {
 		this.id = id;
+	}
+	
+	@Override
+	public String toString() {
+		return "Employee [id=" + id + ", firstName=" + firstName + ", lastName=" + lastName + ", email=" + email
+				+ ",department=" + department +"]";
 	}
 
 }
