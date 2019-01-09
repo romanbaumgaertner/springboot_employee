@@ -51,7 +51,7 @@ public class EmployeeController {
 
 	
 	// get employee with id <id>
-	@GetMapping("/employee/{id}")
+	@GetMapping("v1/employee/{id}")
 	public String getEmployee(@PathVariable long id){
 		
 		JsonCache cache = JsonCache.getInstance();
@@ -66,8 +66,27 @@ public class EmployeeController {
 		return obj.toString();
 	}
 	
+	// Note:
+	// Example how to support versioning
+	//   the API below could contain a different logic
+	// get employee with id <id>
+	@GetMapping("v2/employee/{id}")
+	public String getEmployeeV2(@PathVariable long id){
+		
+		JsonCache cache = JsonCache.getInstance();
+		JSONObject obj;
+		try {
+			obj = cache.getResource(id);
+		} catch (Exception e) {
+			 throw new ResponseStatusException(
+			          HttpStatus.BAD_REQUEST, "resource not found", e);
+		}
+		
+		return obj.toString();
+	}
+	
 	//get all employees
-	@GetMapping("/employees")
+	@GetMapping("v1/employees")
 	public String getEmployees(){
 		
 		JsonCache cache = JsonCache.getInstance();
@@ -77,7 +96,7 @@ public class EmployeeController {
 	}	
 
 	// create new resource
-	@PostMapping("/employee")
+	@PostMapping("v1/employee")
 	@ResponseStatus(HttpStatus.CREATED)
 	public Employee employee(
 			@Valid @RequestBody Employee e) throws Exception{
@@ -110,7 +129,7 @@ public class EmployeeController {
 	
 	
 	// update employee with id <id>
-	@PutMapping("/employee/{id}")
+	@PutMapping("v1/employee/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	public String updateEmployee(
 			@PathVariable long id,
@@ -132,7 +151,7 @@ public class EmployeeController {
 	}
 	
 	// delete resource with id <id>
-	@DeleteMapping("/employee/{id}")
+	@DeleteMapping("v1/employee/{id}")
 	@ResponseStatus(HttpStatus.OK)
 	public String delete(@PathVariable("id") Long id) {
 		JsonCache cache = JsonCache.getInstance();
@@ -147,7 +166,7 @@ public class EmployeeController {
 	}
 	
 	// delete all entries
-	@DeleteMapping("/employees")
+	@DeleteMapping("v1/employees")
 	public String deleteAll() {
 		
 		JsonCache cache = JsonCache.getInstance();
