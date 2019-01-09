@@ -27,14 +27,18 @@ public class JsonCache {
 		return jcache;
 	}
 	
-	public JSONObject getResource(long id) {
+	public JSONObject getResource(long id)  throws Exception{
+		
+		boolean isFound = false;
+		JSONObject object = null;
 		
 		for( int i = 0; i < jArray.length(); i++) {
 			try {
-				JSONObject object = jArray.getJSONObject(i);
+				object = jArray.getJSONObject(i);
 				
-				if(object.getLong(ID) ==id) {
-					return object;
+				if(object.getLong(ID) == id) {
+					isFound = true;
+					break;
 				}
 			} catch (JSONException e) {
 				// TODO Auto-generated catch block
@@ -42,7 +46,10 @@ public class JsonCache {
 			}	
 		}
 		
-		return null;
+		if(isFound == false)
+			throw new Exception("resource id not found");
+		
+		return object;
 	}
 	
 	public void addEntity(JSONObject object) {

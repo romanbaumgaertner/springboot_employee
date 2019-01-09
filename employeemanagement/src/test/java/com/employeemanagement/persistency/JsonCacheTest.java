@@ -45,7 +45,7 @@ public class JsonCacheTest {
 	}
 	
 	@Test
-	public void testGetResource() throws JSONException {
+	public void testGetResource() throws Exception {
 		JsonCache cache = JsonCache.getInstance();
 		
 		JSONObject obj = new JSONObject();
