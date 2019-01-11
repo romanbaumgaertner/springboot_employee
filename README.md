@@ -120,9 +120,36 @@ To configure the port correctly only
 
 	 eb setenv SERVER_PORT=5000
 
+is needed to ensure that the loadbalance gets the REST request. Request are than distributed to the running app instances.
 
-is needed to ensure that the loadbalance gets the REST request. Request are than distributed to the running app instances. 
 
+# Update!
+
+I managed to run the applcation on 
+
+1. Elasticbeanstalk and
+
+http://emplmanager-dev.us-west-1.elasticbeanstalk.com:5000/management/v2/employees
+
+2. EC2 only with RDS support
+
+http://ec2-52-53-176-89.us-west-1.compute.amazonaws.com:8080/management/v2/employees
+
+If the Url(s) is/are not reachable, I might have shutdown the servers.
+
+
+
+# Swagger Support
+
+Access Swagger API doc with
+
+	http://127.0.0.1:8080/swagger-ui.html
+
+Note: If needed change host and port
+
+On AWS the following URL is currently supported to read the API doc
+
+	http://ec2-52-53-176-89.us-west-1.compute.amazonaws.com:8080/swagger-ui.html
 
  
 

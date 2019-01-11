@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 // Note - was having problems getting the repository recognized by Spring
 //        needed to add additional annotations ... weird
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.employeemanagement.controller"})
+@ComponentScan(basePackages = {"com.employeemanagement.controller","com.employeemanagement.app"})
 @EnableJpaRepositories("com.employeemanagement.repositories")
 @EntityScan("com.employeemanagement.models")
 public class EmployeeManagementApplication {
