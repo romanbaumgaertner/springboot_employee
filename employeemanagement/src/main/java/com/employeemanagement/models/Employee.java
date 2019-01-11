@@ -20,11 +20,11 @@ public class Employee {
 	private long id;
 
 	@NotNull
-	@Column(name = "firstname")
+	@Column(name = "firstname", unique=true)
 	private String firstName;
 	
 	@NotNull
-	@Column(name = "lastname")
+	@Column(name = "lastname", unique=true)
 	private String lastName;
 	
 	@Column(name = "email")

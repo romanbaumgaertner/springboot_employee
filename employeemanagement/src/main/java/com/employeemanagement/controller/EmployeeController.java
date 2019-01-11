@@ -76,7 +76,7 @@ public class EmployeeController {
 			obj = cache.getResource(id);
 		} catch (Exception e) {
 			 throw new ResponseStatusException(
-			          HttpStatus.BAD_REQUEST, "resource not found", e);
+					 HttpStatus.NOT_FOUND, "resource not found", e);
 		}
 		
 		return obj.toString();
@@ -97,7 +97,7 @@ public class EmployeeController {
 			
 		}else {
 			throw new ResponseStatusException(
-			          HttpStatus.BAD_REQUEST, "resource id not found");
+					 HttpStatus.NOT_FOUND, "resource id not found");
 		}
 		
 		return (ResponseEntity<Employee>) ResponseEntity.ok().body(employeeResult);
@@ -180,7 +180,7 @@ public class EmployeeController {
 
 		} catch (Exception e1) {
 			throw new ResponseStatusException(
-			          HttpStatus.BAD_REQUEST, "update request problem", e1);
+					 HttpStatus.NOT_FOUND, "update request problem", e1);
 		}
 		
 		return object.toString();
@@ -204,7 +204,7 @@ public class EmployeeController {
 			
 		}else {
 			throw new ResponseStatusException(
-			          HttpStatus.BAD_REQUEST, "resource id not found");
+					 HttpStatus.NOT_FOUND, "resource id not found");
 		}
 		
 		
@@ -220,7 +220,7 @@ public class EmployeeController {
 			cache.deleteResource(id);
 		} catch (Exception e1) {
 			 throw new ResponseStatusException(
-			          HttpStatus.BAD_REQUEST, "delete request problem", e1);
+					 HttpStatus.NOT_FOUND, "delete request problem", e1);
 		}
 		
 		return "{\"response\":\"entry " +id +" deleted\"}";
@@ -237,6 +237,9 @@ public class EmployeeController {
 			employeeResult = employee.get();
 			employeeRepository.delete(employeeResult);
 			
+		} else {
+			 throw new ResponseStatusException(
+					 HttpStatus.NOT_FOUND, "delete request problem");
 		}
 		
 		return ResponseEntity.ok(employeeResult);
